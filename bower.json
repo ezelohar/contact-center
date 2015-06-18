@@ -1,0 +1,13 @@
+{
+	"name": "zoomit contact center app",
+	"dependencies": {
+		"jquery": "2.1.4",
+		"angular": "1.4.1",
+		"bootstrap": "3.3.5",
+		"moment": "2.10.3",
+		"lodash": "3.9.3",
+		"angular-route": "1.4.1",
+		"angular-moment": "0.10.1",
+		"angular-utils-pagination": "0.8.2"
+	}
+}

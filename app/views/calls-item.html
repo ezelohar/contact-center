@@ -1,10 +1,88 @@
-<!DOCTYPE html>
-<html>
-<head lang="en">
-	<meta charset="UTF-8">
-	<title></title>
-</head>
-<body>
+<div class="row cc-screen-two">
+	<div class="col-md-12">
+		<div class="row">
+			<div class="col-md-8">
+				<h3>
+					Evaluation form for call #{{call.callID}}
+				</h3>
+			</div>
+			<div class="col-md-4">
+				<audio player-manager preload="false" id="audioTag" controls>
+					<source ng-src="{{call.callMedias.audioFile |embedUrl}}" type="audio/mp3"/>
+					Your browser does not support the audio element.
+				</audio>
+			</div>
+		</div>
 
-</body>
-</html>
+		<form class="form-horizontal">
+			<div class="row">
+				<div class="col-md-3">
+					Agent Details
+				</div>
+				<div class="col-md-9">
+					<p>
+						<b>Agent</b>: {{call.agent.agentName}}, <b>Client</b>: {{call.client.clientName}}, <b>Direction</b>: {{call.callDirection | capitalize}}
+					</p>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-md-3">
+					Customer Score
+				</div>
+				<div class="col-md-9">
+					<label class="radio-inline" ng-repeat="n in [0,1,2,3,4,5,6,7,8,9] track by $index">
+						<input type="radio" ng-model="call.evaluation.customerScore" name="customerScore" id="customerScore{{$index}}"
+						       value="{{$index+1}}"> {{$index+1}}
+					</label>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-md-3">
+					Manger Score
+				</div>
+				<div class="col-md-9">
+					<label class="radio-inline" ng-repeat="n in [0,1,2,3,4,5,6,7,8,9] track by $index">
+						<input type="radio" ng-model="call.evaluation.managerScore" name="managerScore" id="managerScore{{$index}}"
+						       value="{{$index+1}}"> {{$index+1}}
+					</label>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-md-3">
+					Improvement
+				</div>
+				<div class="col-md-9">
+					<select class="form-control" id="filter_than" ng-model="call.evaluation.improvement"
+						name="filter_than">
+						<option value="hard skills ­ products">hard skills ­ products</option>
+						<option value="soft skills ­ communication">soft skills ­ communication</option>
+						<option value="call technique">call technique</option>
+					</select>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-md-3">
+					Resume
+				</div>
+				<div class="col-md-9">
+					<textarea class="form-control" rows="3" ng-model="call.evaluation.resume"></textarea>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-md-3 col-md-offset-9 text-right">
+					Total Score {{( + + call.evaluation.managerScore + + call.evaluation.customerScore)/2}}
+				</div>
+			</div>
+
+			<div class="row">
+				<div class="col-md-12">
+					<button type="submit" class="btn btn-success" ng-click="updateItem()">Update
+					</button>
+					<button type="submit" class="btn btn-warning" back>Cancel
+					</button>
+				</div>
+			</div>
+
+		</form>
+	</div>
+</div>

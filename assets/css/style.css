@@ -1,0 +1,80 @@
+.player-control span.playing {
+	display: none;
+}
+
+.player-control span.paused {
+	display: block;
+}
+
+.player-control.play span.playing {
+	display: block;
+}
+
+.player-control.play span.paused {
+	display: none;
+}
+
+
+.cc-screen-two form .row {
+	margin-bottom:20px;
+}
+
+
+input.ng-invalid {
+	border: 1px solid red;
+}
+
+.cc-screen-one .table > thead > tr > th {
+	padding-top: 0px;
+}
+
+audio {
+	width: 100%;
+}
+
+.cc-screen-one audio {
+	display: none;
+}
+.cc-screen-two audio {
+	margin-top: 20px;
+}
+
+.relative {
+	position: relative;
+}
+
+.loading > *:not(.loader){
+	opacity: 0.1;
+}
+
+.loader {
+	position: absolute;
+	top: 15%;
+	left: 50%;
+	margin-left: -200px;
+	opacity: 0.9;
+	display: none;
+}
+
+.loading .loader {
+	display: block;
+}
+
+
+/* score collors*/
+.green {
+	color: green;;
+}
+
+.red {
+	color: red;
+}
+
+.yellow {
+	color: #f0ad4e;
+}
+
+
+
+
+

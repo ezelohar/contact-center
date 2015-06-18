@@ -1,3 +1,8 @@
-/**
- * Created by ezelohar on 6/17/15.
- */
+angular.module('ContactCenter').filter('capitalize', function () {
+	return function (input, scope) {
+		if (input !== null) {
+			input = input.toLowerCase();
+		}
+		return input.substring(0, 1).toUpperCase() + input.substring(1);
+	};
+});

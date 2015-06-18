@@ -1,10 +1,137 @@
-<!DOCTYPE html>
-<html>
-<head lang="en">
-	<meta charset="UTF-8">
-	<title></title>
-</head>
-<body>
+<div class="row cc-screen-one" id="main">
+	<div class="col-md-12">
+		<div class="row">
+			<div class="col-md-3">
+				<h3>
+					Call list
+				</h3>
+			</div>
+			<div class="col-md-9">
+				<h5>
+					<audio player-manager preload="false" id="audioTag" controls
+					       data-player="{{playerSettings.playerID}}">
+						<source ng-src="{{playerSettings.callMp3 |embedUrl}}" type="audio/mp3"/>
+						Your browser does not support the audio element.
+					</audio>
+				</h5>
+			</div>
+		</div>
+		<hr />
+		<div class="row">
+			<div class="col-md-3">
+				<form class="form-horizontal">
+					<div class="form-group">
+						<label for="filter_agent_id" class="col-sm-3 control-label">Search</label>
+						<div class="col-sm-9">
+							<input type="text" class="form-control"
+							       id="search_box" name="search_box" ng-model="searchText"
+							       placeholder="Type to search calls...">
+						</div>
+					</div>
+					<hr />
+					<h5>Filters</h5>
+					<div class="form-group">
+						<label for="filter_agent_id" class="col-sm-3 control-label">Agent
+							ID</label>
 
-</body>
-</html>
+						<div class="col-sm-9">
+							<input type="text" class="form-control"
+							       id="filter_agent_id" name="filter_agent_id" ng-model="search.agentID"
+							       placeholder="Agent ID">
+						</div>
+					</div>
+					<div class="form-group">
+						<label for="filter_score"
+						       class="col-sm-3 control-label">Score</label>
+
+						<div class="col-sm-9">
+							<input type="number" class="form-control" step="any"
+							       id="filter_score" name="filter_score" ng-model="search.score"
+							       placeholder="Score" min="0">
+						</div>
+					</div>
+					<div class="form-group">
+						<label for="filter_duration"
+						       class="col-sm-3 control-label">Duration (min)</label>
+
+						<div class="col-sm-9">
+							<input type="number" class="form-control"
+							       id="filter_duration" name="filter_duration" ng-model="search.duration"
+							       placeholder="Minutes" min="0">
+						</div>
+					</div>
+					<div class="form-group">
+						<label for="filter_days_ago" class="col-sm-3 control-label">Call
+							Age (days)</label>
+
+						<div class="col-sm-9">
+							<input type="number" class="form-control" ng-model="search.callAgo"
+							       id="filter_days_ago"
+							       name="filter_days_ago" placeholder="Days" min="0">
+						</div>
+					</div>
+					<div class="form-group">
+						<div class="col-sm-12 text-right">
+							<button type="submit" class="btn btn-success" ng-click="searchAction(search)">Apply Filters
+							</button>
+							<button type="submit" class="btn btn-warning" ng-click="resetFilter()">Reset
+							</button>
+						</div>
+					</div>
+				</form>
+			</div>
+			<div class="col-md-9 relative {{loading}}">
+				<div class="loader">
+					<img src="assets/images/ajax-loaderBIG.gif" />
+				</div>
+				<table class="table table-striped">
+					<thead>
+					<tr>
+						<th>ID</th>
+						<th>Type</th>
+						<th>Direction</th>
+						<th>Time of occurrence</th>
+						<th>Identification</th>
+						<th>Duration</th>
+						<th>Score</th>
+						<th>Actions</th>
+					</tr>
+					</thead>
+					<tbody>
+					<tr dir-paginate="call in calls | filter:searchText | itemsPerPage: 25" pagination-id="call">
+						<td>{{call.callID}}</td>
+						<td>{{call.callType | capitalize}}</td>
+						<td>{{call.callDirection | capitalize}}</td>
+						<td><span am-time-ago="call.callEnd"></span></td>
+						<td>{{call.callDirection === 'inbound' ? 'Client:' + call.client.clientName : 'Agent:' +
+							call.agent.agentName}}
+						</td>
+						<td>{{call.timeDifference}} minute</td>
+						<td>
+							<span ng-class="{red: (call.evaluation.totalScore < 5), yellow: (call.evaluation.totalScore > 4 && call.evaluation.totalScore < 9), green: (call.evaluation.totalScore > 8)}">
+								{{call.evaluation.totalScore}}
+							</span></td>
+						<td>
+							<button type="button" id="play_{{call.callID}}"
+								class="btn btn-primary player-control"
+								play="setPlay(call.callMedias.audioFile, call.callID)"
+								data-call-id="{{call.callID}}">
+								<span class="playing">Pause</span>
+								<span class="paused">Play</span>
+							</button>
+							<a type="button" class="btn btn-info" ng-href="#/call/{{call.callID}}">Evaluate</a>
+						</td>
+					</tr>
+					</tbody>
+				</table>
+				<div class="row" ng-hide="calls.length">
+					<div class="col-md-12">
+						<p>No data to show. Please adjust your filters</p>
+					</div>
+				</div>
+				<dir-pagination-controls pagination-id="call" ></dir-pagination-controls>
+			</div>
+		</div>
+
+	</div>
+</div>

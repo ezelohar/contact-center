@@ -1,3 +1,3 @@
-/**
- * Created by ezelohar on 6/18/15.
- */
+angular.module('ContactCenter').controller('InfoCtrl',['$scope',   function($scope) {
+
+}]);

@@ -7,7 +7,7 @@
  * They both follow the same API, returning promises for all changes to the
  * model.
  */
-ContactCenter.factory('dataManager', ['$q', '$http', '_', 'moment', function ($q, $http, _, moment) {
+angular.module('ContactCenter').factory('dataManager', ['$q', '$http', '_', 'moment', function ($q, $http, _, moment) {
 	'use strict';
 
 	var STORAGE_ID = 'c1-c2';
@@ -42,7 +42,7 @@ ContactCenter.factory('dataManager', ['$q', '$http', '_', 'moment', function ($q
 		 * @returns {boolean}
 		 */
 		inLocalStorage: function (id) {
-			return (this._getFromLocalStorage(id)) ? true : false;
+			return (!_.isEmpty(this._getFromLocalStorage(id))) ? true : false;
 		},
 
 		/**
@@ -67,28 +67,43 @@ ContactCenter.factory('dataManager', ['$q', '$http', '_', 'moment', function ($q
 		},
 
 		/**
+		 * Save data to local storage and local variable
+		 * @param {Array} data
+		 * @returns {Array}
+		 */
+		saveCalls: function (data) {
+			var id = 'calls';
+			store._saveToLocalStorage(id, data);
+			angular.copy(data, store.calls);
+
+			return store.calls;
+		},
+
+		/**
 		 * Get dummy calls data
 		 * @returns {*}
 		 */
 		getDummyData: function () {
 			var deferred = $q.defer(), id = 'calls';
 			var url = 'dummy-data/data.json?id=2';
-			$http.get(url).success(function (data, status) {
+			$http.get(url).success(function (data) {
+				if (data.success) {
 
-				/*set some informations to reduce working time in future */
+					/*set some informations to reduce working time in future */
 
-				_.forEach(data, function (n, key) {
-					var timeA = moment(n.callStart), timeB = moment(n.callEnd);
-					n.timeDifference = timeB.diff(timeA, 'minutes');
-				});
-
-
-				//Save data to local storage
-				store._saveToLocalStorage(id, data);
+					_.forEach(data, function (n, key) {
+						var timeA = moment(n.callStart), timeB = moment(n.callEnd);
+						n.timeDifference = timeB.diff(timeA, 'minutes');
+					});
 
 
-				//Do regular get and copy data to store.calls
-				deferred.resolve(store.get());
+
+
+					//Do regular get and copy data to store.calls
+					deferred.resolve(store.saveCalls(data));
+				} else {
+					deferred.reject(data);
+				}
 			}).error(function (data, status) {
 				deferred.reject(data);
 			});
@@ -112,7 +127,7 @@ ContactCenter.factory('dataManager', ['$q', '$http', '_', 'moment', function ($q
 				deferred.resolve(element);
 			}, function error(data) {
 				deferred.reject(data);
-			})
+			});
 
 			return deferred.promise;
 		},
@@ -138,7 +153,7 @@ ContactCenter.factory('dataManager', ['$q', '$http', '_', 'moment', function ($q
 				}
 			}, function error(data) {
 				deferred.reject(data);
-			})
+			});
 
 			return deferred.promise;
 		},
@@ -153,23 +168,21 @@ ContactCenter.factory('dataManager', ['$q', '$http', '_', 'moment', function ($q
 			var deferred = $q.defer();
 
 			if (!reset && store.filteredCalls.length) {
-				return store.filteredCalls;
-			}
-
-			var calls = store.fetchData();
-			calls.then(function success(data) {
-				store.filteredCalls = _.filter(store.calls, function (n) {
-					var time = moment(n.callEnd);
-					return (!options.score || n.evaluation.totalScore == options.score) &&
-						((options.agentID == '' || !options.agentID) || n.agent.agentID.indexOf(options.agentID) != -1) &&
-						(!options.duration || n.timeDifference == options.duration) &&
-						(!options.callAgo || moment().diff(time, 'days') == options.callAgo);
-				});
-
 				deferred.resolve(store.filteredCalls);
-			});
+			} else {
+				var calls = store.fetchData();
+				calls.then(function success(data) {
+					store.filteredCalls = _.filter(store.calls, function (n) {
+						var time = moment(n.callEnd);
+						return (!options.score || n.evaluation.totalScore == options.score) &&
+							((options.agentID === '' || !options.agentID) || n.agent.agentID.indexOf(options.agentID) != -1) &&
+							(!options.duration || n.timeDifference == options.duration) &&
+							(!options.callAgo || moment().diff(time, 'days') == options.callAgo);
+					});
 
-
+					deferred.resolve(store.filteredCalls);
+				});
+			}
 
 
 			return deferred.promise;
@@ -180,7 +193,7 @@ ContactCenter.factory('dataManager', ['$q', '$http', '_', 'moment', function ($q
 		 * @returns {*}
 		 */
 		get: function () {
-			var deferred = $q.defer(), id = 'calls'
+			var deferred = $q.defer(), id = 'calls';
 
 			angular.copy(store._getFromLocalStorage(id), store.calls);
 			deferred.resolve(store.calls);
