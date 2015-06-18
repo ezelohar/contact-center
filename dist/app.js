@@ -383,8 +383,6 @@ angular.module('ContactCenter').factory('dataManager', ['$q', '$http', '_', 'mom
 			store._saveToLocalStorage(store.callsStoreID, data);
 			angular.copy(data, store.calls);
 
-
-			console.log(store.calls);
 			return store.calls;
 		},
 
@@ -414,7 +412,6 @@ angular.module('ContactCenter').factory('dataManager', ['$q', '$http', '_', 'mom
 					deferred.reject(data);
 				}
 			}).error(function (data, status) {
-				console.log(osa);
 				deferred.reject(data);
 			});
 
