@@ -39,8 +39,6 @@ angular.module('ContactCenter').config(function(paginationTemplateProvider) {
 	paginationTemplateProvider.setPath('bower_components/angular-utils-pagination/dirPagination.tpl.html');
 });
 
-
-
 /*
 
 Steps to do

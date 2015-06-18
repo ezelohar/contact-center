@@ -10,11 +10,12 @@
 angular.module('ContactCenter').factory('dataManager', ['$q', '$http', '_', 'moment', function ($q, $http, _, moment) {
 	'use strict';
 
-	var STORAGE_ID = 'c1-c2';
+	var STORAGE_MAPPER = 'zoom-contact-center';
 
 	var store = {
-		model_id: 'callID',
+		modelID: 'callID',
 		calls: [],
+		callsStoreID: 'calls',
 		filteredCalls: [],
 
 		/**
@@ -22,8 +23,8 @@ angular.module('ContactCenter').factory('dataManager', ['$q', '$http', '_', 'mom
 		 * @param {string} id Identifier for local storage
 		 * @returns {mixed}
 		 */
-		_getFromLocalStorage: function (id) {
-			return JSON.parse(localStorage.getItem(STORAGE_ID + '-' + id) || '[]');
+		_getFromLocalStorage: function (storeID) {
+			return JSON.parse(localStorage.getItem(STORAGE_MAPPER + '-' + storeID) || '[]');
 		},
 
 		/**
@@ -32,8 +33,8 @@ angular.module('ContactCenter').factory('dataManager', ['$q', '$http', '_', 'mom
 		 * @param {object} item Object to save
 		 * @returns {void}
 		 */
-		_saveToLocalStorage: function (id, item) {
-			localStorage.setItem(STORAGE_ID + '-' + id, JSON.stringify(item));
+		_saveToLocalStorage: function (storeID, item) {
+			localStorage.setItem(STORAGE_MAPPER + '-' + storeID, JSON.stringify(item));
 		},
 
 		/**
@@ -41,8 +42,12 @@ angular.module('ContactCenter').factory('dataManager', ['$q', '$http', '_', 'mom
 		 * @param {string} id Identifier for local storage
 		 * @returns {boolean}
 		 */
-		inLocalStorage: function (id) {
-			return (!_.isEmpty(this._getFromLocalStorage(id))) ? true : false;
+		inLocalStorage: function (storeID) {
+			if (!storeID) {
+				storeID = store.callsStoreID;
+			}
+
+			return (!_.isEmpty(this._getFromLocalStorage(storeID))) ? true : false;
 		},
 
 		/**
@@ -58,8 +63,7 @@ angular.module('ContactCenter').factory('dataManager', ['$q', '$http', '_', 'mom
 		 * @returns {deferred}
 		 */
 		fetchData: function () {
-			var id = 'calls';
-			if (store.inLocalStorage(id)) {
+			if (store.inLocalStorage()) {
 				return store.get();
 			} else {
 				return store.getDummyData();
@@ -72,10 +76,11 @@ angular.module('ContactCenter').factory('dataManager', ['$q', '$http', '_', 'mom
 		 * @returns {Array}
 		 */
 		saveCalls: function (data) {
-			var id = 'calls';
-			store._saveToLocalStorage(id, data);
+			store._saveToLocalStorage(store.callsStoreID, data);
 			angular.copy(data, store.calls);
 
+
+			console.log(store.calls);
 			return store.calls;
 		},
 
@@ -91,7 +96,7 @@ angular.module('ContactCenter').factory('dataManager', ['$q', '$http', '_', 'mom
 
 					/*set some informations to reduce working time in future */
 
-					_.forEach(data, function (n, key) {
+					_.forEach(data.data, function (n, key) {
 						var timeA = moment(n.callStart), timeB = moment(n.callEnd);
 						n.timeDifference = timeB.diff(timeA, 'minutes');
 					});
@@ -100,11 +105,12 @@ angular.module('ContactCenter').factory('dataManager', ['$q', '$http', '_', 'mom
 
 
 					//Do regular get and copy data to store.calls
-					deferred.resolve(store.saveCalls(data));
+					deferred.resolve(store.saveCalls(data.data));
 				} else {
 					deferred.reject(data);
 				}
 			}).error(function (data, status) {
+				console.log(osa);
 				deferred.reject(data);
 			});
 
@@ -112,7 +118,7 @@ angular.module('ContactCenter').factory('dataManager', ['$q', '$http', '_', 'mom
 		},
 
 		/**
-		 * Find element by {store.model_id} in {store.calls}
+		 * Find element by {store.modelID} in {store.calls}
 		 * @param {number} id
 		 * @returns {*}
 		 */
@@ -122,7 +128,7 @@ angular.module('ContactCenter').factory('dataManager', ['$q', '$http', '_', 'mom
 			var calls = store.fetchData();
 			calls.then(function success(data) {
 				var element = _.find(data, function (item) {
-					return item[store.model_id] == id;
+					return item[store.modelID] == id;
 				});
 				deferred.resolve(element);
 			}, function error(data) {
@@ -133,7 +139,7 @@ angular.module('ContactCenter').factory('dataManager', ['$q', '$http', '_', 'mom
 		},
 
 		/**
-		 * Find element index in {store.calls} by {store.model_id}
+		 * Find element index in {store.calls} by {store.modelID}
 		 * @param {number} id
 		 * @returns {*}
 		 */
@@ -143,7 +149,7 @@ angular.module('ContactCenter').factory('dataManager', ['$q', '$http', '_', 'mom
 			var calls = store.fetchData();
 			calls.then(function success(data) {
 				var index = _.findIndex(data, function (item) {
-					return item[store.model_id] == id;
+					return item[store.modelID] == id;
 				});
 
 				if (index !== -1) {
@@ -193,9 +199,9 @@ angular.module('ContactCenter').factory('dataManager', ['$q', '$http', '_', 'mom
 		 * @returns {*}
 		 */
 		get: function () {
-			var deferred = $q.defer(), id = 'calls';
+			var deferred = $q.defer();
 
-			angular.copy(store._getFromLocalStorage(id), store.calls);
+			angular.copy(store._getFromLocalStorage(store.callsStoreID), store.calls);
 			deferred.resolve(store.calls);
 
 			return deferred.promise;
@@ -207,11 +213,11 @@ angular.module('ContactCenter').factory('dataManager', ['$q', '$http', '_', 'mom
 		 * @returns {*}
 		 */
 		put: function (call) {
-			var deferred = $q.defer(), callId = call[store.model_id], id = 'calls';
+			var deferred = $q.defer(), callId = call[store.modelID];
 
 			store.findElementIndexById(callId).then(function success(index) {
 				store.calls[index] = call;
-				store._saveToLocalStorage(id, store.calls);
+				store._saveToLocalStorage(store.callsStoreID, store.calls);
 				deferred.resolve(callId);
 			}, function error(index) {
 				deferred.reject(index);
