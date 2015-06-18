@@ -38,24 +38,3 @@ angular.module('ContactCenter').config(['$routeProvider',
 angular.module('ContactCenter').config(function(paginationTemplateProvider) {
 	paginationTemplateProvider.setPath('bower_components/angular-utils-pagination/dirPagination.tpl.html');
 });
-
-/*
-
-Steps to do
-
-1. Create controller which will fetch data
-2. Display data
-3. Create pagination
-4.
- */
-
-/* missing to finish
-
-15. Test on Djurdja's comp
-16. Test on Different Browsers
-18. Compile all
-19. Push to git
-20. Write Readme.md
-21. Loading App page
-
- */
