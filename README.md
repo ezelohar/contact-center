@@ -11,5 +11,5 @@ npm install && bower install
 
 
 To run tests you can use grunt
-** grunt test
+grunt test
 
